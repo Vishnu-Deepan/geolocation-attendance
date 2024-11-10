@@ -14,7 +14,7 @@ class ManualAttendancePage extends StatefulWidget {
 
 class _ManualAttendancePageState extends State<ManualAttendancePage> {
   bool isCheckedIn = false;
-  String checkInOfficeId = ''; // Track the office ID where the user checked in
+  String checkInOfficeName = ''; // Track the office name where the user checked in
   DateTime? checkOutTime;
   String? userName; // To store the user's name
 
@@ -25,6 +25,7 @@ class _ManualAttendancePageState extends State<ManualAttendancePage> {
     _loadCheckInStatus();
   }
 
+  // Load the user's name from Firestore
   Future<void> _loadUserName() async {
     final userSnapshot = await FirebaseFirestore.instance
         .collection('users')
@@ -38,6 +39,7 @@ class _ManualAttendancePageState extends State<ManualAttendancePage> {
     }
   }
 
+  // Load the user's check-in status
   Future<void> _loadCheckInStatus() async {
     final snapshot = await FirebaseFirestore.instance
         .collection('checkins')
@@ -49,24 +51,25 @@ class _ManualAttendancePageState extends State<ManualAttendancePage> {
     if (snapshot.docs.isNotEmpty) {
       setState(() {
         isCheckedIn = snapshot.docs.first['status'] == 'checked_in';
-        checkInOfficeId = snapshot.docs.first['office_id'];
+        checkInOfficeName = snapshot.docs.first['office_name']; // Use office_name instead of office_id
       });
     }
   }
 
-  Future<void> _handleCheckIn(String officeId) async {
+  // Handle the user's check-in process
+  Future<void> _handleCheckIn(String officeName) async {
     final officeSnapshot = await FirebaseFirestore.instance
         .collection('officeLocations')
-        .doc(officeId)
+        .where('office_name', isEqualTo: officeName) // Searching by office_name
+        .limit(1)
         .get();
 
-    if (officeSnapshot.exists) {
-      String officeName = officeSnapshot.data()?['office_name'] ?? 'Unknown Office';
+    if (officeSnapshot.docs.isNotEmpty) {
+      String officeName = officeSnapshot.docs.first['office_name'] ?? 'Unknown Office';
 
       await FirebaseFirestore.instance.collection('checkins').add({
         'user_id': widget.user!.uid,
-        'office_id': officeId,
-        'office_name': officeName,
+        'office_name': officeName,  // Use office_name instead of office_id
         'status': 'checked_in',
         'check_in_time': DateTime.now(),
         'user_name': userName,
@@ -74,16 +77,17 @@ class _ManualAttendancePageState extends State<ManualAttendancePage> {
 
       setState(() {
         isCheckedIn = true;
-        checkInOfficeId = officeId;
+        checkInOfficeName = officeName; // Save office_name
       });
     }
   }
 
-  Future<void> _handleCheckOut(String officeId) async {
+  // Handle the user's check-out process
+  Future<void> _handleCheckOut(String officeName) async {
     await FirebaseFirestore.instance
         .collection('checkins')
         .where('user_id', isEqualTo: widget.user!.uid)
-        .where('office_id', isEqualTo: officeId)
+        .where('office_name', isEqualTo: officeName) // Query by office_name
         .where('status', isEqualTo: 'checked_in')
         .limit(1)
         .get()
@@ -96,14 +100,15 @@ class _ManualAttendancePageState extends State<ManualAttendancePage> {
 
         setState(() {
           isCheckedIn = false;
-          checkInOfficeId = '';
+          checkInOfficeName = '';
           checkOutTime = DateTime.now();
         });
       }
     });
   }
 
-  Future<void> _showConfirmationDialog(String officeId, String officeName, bool isCheckIn) async {
+  // Show a confirmation dialog for check-in/check-out
+  Future<void> _showConfirmationDialog(String officeName, bool isCheckIn) async {
     DateTime currentTime = DateTime.now();
     String timeString = DateFormat('hh:mm a').format(currentTime);
 
@@ -147,9 +152,9 @@ class _ManualAttendancePageState extends State<ManualAttendancePage> {
               onPressed: () {
                 Navigator.of(context).pop();
                 if (isCheckIn) {
-                  _handleCheckIn(officeId);
+                  _handleCheckIn(officeName);
                 } else {
-                  _handleCheckOut(officeId);
+                  _handleCheckOut(officeName);
                 }
               },
               child: Text(
@@ -167,12 +172,8 @@ class _ManualAttendancePageState extends State<ManualAttendancePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        centerTitle:
-        true,
-        title: Text("Manual Check-In/Out",style: TextStyle(
-          fontWeight: FontWeight.w700,
-          color: Colors.white,
-        ),),
+        centerTitle: true,
+        title: Text("Manual Check-In/Out", style: TextStyle(fontWeight: FontWeight.w700, color: Colors.white)),
         backgroundColor: Colors.blueAccent,
       ),
       body: Container(
@@ -204,8 +205,7 @@ class _ManualAttendancePageState extends State<ManualAttendancePage> {
                     itemCount: snapshot.data!.docs.length,
                     itemBuilder: (context, index) {
                       var office = snapshot.data!.docs[index];
-                      String officeId = office.id;
-                      String officeName = office['office_name'];
+                      String officeName = office['office_name']; // Get office_name instead of office_id
 
                       return Card(
                         elevation: 8,
@@ -231,13 +231,13 @@ class _ManualAttendancePageState extends State<ManualAttendancePage> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  isCheckedIn && checkInOfficeId == officeId
+                                  isCheckedIn && checkInOfficeName == officeName
                                       ? ElevatedButton.icon(
                                     onPressed: () {
-                                      _showConfirmationDialog(officeId, officeName, false);
+                                      _showConfirmationDialog(officeName, false);
                                     },
-                                    icon: Icon(Icons.exit_to_app),
-                                    label: Text("Check-Out"),
+                                    icon: Icon(Icons.exit_to_app,color: Colors.white),
+                                    label: Text("Check-Out",style: TextStyle(color: Colors.white),),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.redAccent,
                                       shape: RoundedRectangleBorder(
@@ -249,7 +249,7 @@ class _ManualAttendancePageState extends State<ManualAttendancePage> {
                                       : !isCheckedIn
                                       ? ElevatedButton.icon(
                                     onPressed: () {
-                                      _showConfirmationDialog(officeId, officeName, true);
+                                      _showConfirmationDialog(officeName, true);
                                     },
                                     icon: Icon(Icons.check_circle),
                                     label: Text("Check-In"),
@@ -264,7 +264,7 @@ class _ManualAttendancePageState extends State<ManualAttendancePage> {
                                       : SizedBox(),
                                 ],
                               ),
-                              if (checkOutTime != null && checkInOfficeId == officeId)
+                              if (checkOutTime != null && checkInOfficeName == officeName)
                                 Padding(
                                   padding: const EdgeInsets.only(top: 10),
                                   child: Text(

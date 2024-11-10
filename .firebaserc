@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "geolocation-attendance-af5ca",
+    "geo-attd": "geolocation-attendance-af5ca"
+  },
+  "targets": {},
+  "etags": {}
+}

@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "1048391476032",
+    "firebase_url": "https://geolocation-attendance-af5ca-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "geolocation-attendance-af5ca",
+    "storage_bucket": "geolocation-attendance-af5ca.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1048391476032:android:3926381ce71c11bc6c90a5",
+        "android_client_info": {
+          "package_name": "com.example.geolocation_attendance"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCqX7xjXqEmJWnf9l88eiGmrKWg0XGFkn4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

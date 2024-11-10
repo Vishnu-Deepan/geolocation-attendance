@@ -2,6 +2,15 @@
 
 A Flutter-based mobile application for tracking attendance using geolocation. This application leverages location services and Firebase backend to verify and log users' attendance at designated locations, ideal for organizations and institutions that require a reliable, location-based check-in/check-out system.
 
+## Screenshots
+
+| **Login**              | **Signup**           | **Home (Auto Check-in)**  | **Home**              | **Manual Check-in/Out** | **Total Work Hours**     | **Attendance History**   |
+|------------------------|----------------------|---------------------------|-----------------------|-------------------------|--------------------------|--------------------------|
+| ![Login Screen](./screenshots/login.jpg)  | ![Signup Screen](./screenshots/signup.jpg)  | ![Home Screen Auto Check-in](./screenshots/home-screen.jpg) | ![Home Screen](./screenshots/home2.jpg)  | ![Manual Check-in/Out Screen](./screenshots/manual.jpg) | ![Total Work Hours Screen](./screenshots/working-hours.jpg) | ![Attendance History Screen](./screenshots/attendance-history.jpg)  |
+
+
+
+
 ## Features
 - **Login & Sign-up**: Secure user authentication using Firebase Authentication
 - **Cloud Storage**: Real-time attendance data synchronization using Firebase Realtime Database
@@ -84,8 +93,8 @@ flutter run
 - Regularly rotate Firebase API keys
 - Implement proper user authentication checks
 
-## Screenshots
-![Login Screen](./screenshots/login-screen.png)  
-![Home Screen](./screenshots/home-screen.png)  
-![Attendance History](./screenshots/attendance-history.png)  
-![Working Hours](./screenshots/working-hours.png)
+
+
+
+
+
